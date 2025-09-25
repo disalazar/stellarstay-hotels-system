@@ -1,35 +1,15 @@
 spring:
-  application:
-    name: stellarstay-hotels-system
   datasource:
-    url: jdbc:postgresql://localhost:5432/stellarstay
-    username: stellar
-    password: stellar
+    url: jdbc:postgresql://${DB_HOST:db}:${DB_PORT:5432}/${DB_NAME:stellarstay}
+    username: ${DB_USER:stellarstay_user}
+    password: ${DB_PASSWORD:stellarstay_pass}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: stellarstay-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-  prometheus:
-    metrics:
-      export:
-        enabled: true
+server:
+  port: ${SERVER_PORT:8080}

@@ -1,42 +1,47 @@
 version: '3.8'
 services:
   db:
-    image: postgres:16
+    image: postgres:15-alpine
+    container_name: stellarstay_db
     environment:
-      POSTGRES_DB: stellarstay
-      POSTGRES_USER: stellar
-      POSTGRES_PASSWORD: stellar
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - stellarstay_net
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
+  app:
+    build: .
+    container_name: stellarstay_app
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+      SERVER_PORT: ${SERVER_PORT:-8080}
     ports:
-      - "2181:2181"
-
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
+      - "8080:8080"
     depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - db
+    networks:
+      - stellarstay_net
 
 volumes:
   db_data:
+
+networks:
+  stellarstay_net:
+    driver: bridge
+
+# Usage:
+# 1. Copy .env to .env and adjust values as needed.
+# 2. Run: docker-compose up --build
+#
+# All configuration is managed via environment variables.
+# For local development, set DB_HOST=localhost in .env and run the app outside Docker.
