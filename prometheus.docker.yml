@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'stellarstay-app'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['app:8080'] # Use this when the app runs as a Docker service (production or full Docker Compose)
