@@ -1,6 +1,5 @@
 package com.stellarstay.hotelsystem.adapters.in;
 
-
 import com.stellarstay.hotelsystem.api.dto.RoomAvailabilityRequest;
 import com.stellarstay.hotelsystem.api.dto.RoomResponse;
 import com.stellarstay.hotelsystem.domain.Room;
@@ -14,12 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class RoomAvailabilityServiceImpl implements RoomAvailabilityUseCase {
+public class RoomAvailabilityUseCaseImpl implements RoomAvailabilityUseCase {
     private final RoomPersistencePort roomPersistencePort;
     private final ReservationPersistencePort reservationPersistencePort;
 
     @Autowired
-    public RoomAvailabilityServiceImpl(RoomPersistencePort roomPersistencePort, ReservationPersistencePort reservationPersistencePort) {
+    public RoomAvailabilityUseCaseImpl(RoomPersistencePort roomPersistencePort, ReservationPersistencePort reservationPersistencePort) {
         this.roomPersistencePort = roomPersistencePort;
         this.reservationPersistencePort = reservationPersistencePort;
     }
@@ -36,9 +35,10 @@ public class RoomAvailabilityServiceImpl implements RoomAvailabilityUseCase {
     private RoomResponse mapToResponse(Room room) {
         RoomResponse resp = new RoomResponse();
         resp.setRoomId(room.getId());
-        resp.setType(room.getType());
+        resp.setType(room.getType().name());
         resp.setCapacity(room.getCapacity());
         resp.setAvailable(room.isAvailable());
         return resp;
     }
 }
+

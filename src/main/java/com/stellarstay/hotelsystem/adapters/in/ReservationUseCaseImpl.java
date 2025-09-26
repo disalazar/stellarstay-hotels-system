@@ -16,7 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationServiceImpl implements ReservationUseCase {
+public class ReservationUseCaseImpl implements ReservationUseCase {
     private final RoomPersistencePort roomPersistencePort;
     private final ReservationPersistencePort reservationPersistencePort;
     private final PriceCalculator priceCalculator;
@@ -50,3 +50,4 @@ public class ReservationServiceImpl implements ReservationUseCase {
         return reservationMapper.toResponse(saved);
     }
 }
+

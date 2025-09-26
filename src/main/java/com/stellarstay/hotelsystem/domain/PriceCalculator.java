@@ -25,9 +25,9 @@ public class PriceCalculator {
 
     private double getBaseRate(RoomType type) {
         return switch (type) {
-            case SUITE_JUNIOR -> 60;
-            case SUITE_KING -> 90;
-            case SUITE_PRESIDENCIAL -> 150;
+            case JUNIOR_SUITE -> 60;
+            case KING_SUITE -> 90;
+            case PRESIDENTIAL_SUITE -> 150;
         };
     }
 
@@ -43,4 +43,3 @@ public class PriceCalculator {
         return 0;
     }
 }
-
