@@ -3,6 +3,7 @@ package com.stellarstay.hotelsystem.adapters.in;
 import com.stellarstay.hotelsystem.api.dto.CreateReservationRequest;
 import com.stellarstay.hotelsystem.api.dto.ReservationMapper;
 import com.stellarstay.hotelsystem.api.dto.ReservationResponse;
+import com.stellarstay.hotelsystem.api.exception.RoomNotAvailableException;
 import com.stellarstay.hotelsystem.domain.*;
 import com.stellarstay.hotelsystem.ports.in.ReservationUseCase;
 import com.stellarstay.hotelsystem.ports.out.ReservationEventPublisherPort;
@@ -30,7 +31,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Room not found"));
         List<Reservation> overlaps = reservationPersistencePort.findOverlappingReservations(room, request.getCheckInDate(), request.getCheckOutDate());
         if (!overlaps.isEmpty()) {
-            throw new IllegalStateException("Room not available for the selected dates");
+            throw new RoomNotAvailableException("Room not available for the selected dates");
         }
         double totalPrice = priceCalculator.calculate(room.getType(), request.getCheckInDate(), request.getCheckOutDate(), request.getGuests(), request.isBreakfastIncluded());
         Reservation reservation = new Reservation();
@@ -50,4 +51,3 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
         return reservationMapper.toResponse(saved);
     }
 }
-

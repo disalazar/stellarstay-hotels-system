@@ -18,16 +18,8 @@ public class ReservationController {
     private final ReservationUseCase reservationUseCase;
 
     @PostMapping
-    public ResponseEntity<?> createReservation(@Valid @RequestBody CreateReservationRequest request) {
-        try {
-            ReservationResponse reservation = reservationUseCase.createReservation(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
-        }
+    public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody CreateReservationRequest request) {
+        ReservationResponse reservation = reservationUseCase.createReservation(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 }
