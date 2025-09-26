@@ -1,12 +1,9 @@
 package com.stellarstay.hotelsystem.domain;
 
-import org.springframework.stereotype.Service;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-@Service
-public class PriceCalculatorService {
+public class PriceCalculator {
     public double calculate(RoomType roomType, LocalDate checkIn, LocalDate checkOut, int guests, boolean breakfastIncluded) {
         double baseRate = getBaseRate(roomType);
         int days = (int) (checkOut.toEpochDay() - checkIn.toEpochDay());
@@ -46,3 +43,4 @@ public class PriceCalculatorService {
         return 0;
     }
 }
+
