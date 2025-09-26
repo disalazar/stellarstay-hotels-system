@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long>, RoomPersistencePort {
     @Override
-    @Query("SELECT r FROM Room r WHERE r.type = :type AND r.capacity >= :capacity AND r.available = true")
+    @Query("SELECT r FROM Room r WHERE (:type IS NULL OR r.type = :type) AND r.capacity >= :capacity AND r.available = true")
     List<Room> findAvailableRooms(@Param("type") RoomType type, @Param("capacity") int capacity);
 
     @Override

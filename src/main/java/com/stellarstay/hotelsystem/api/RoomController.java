@@ -22,13 +22,14 @@ public class RoomController {
 
     @GetMapping("/available")
     public ResponseEntity<List<RoomResponse>> getAvailableRooms(
-            @RequestParam String type,
+            @RequestParam(required = false) String type,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate,
             @RequestParam int guests
     ) {
         validator.validate(type, checkInDate, checkOutDate, guests);
-        RoomAvailabilityRequest request = new RoomAvailabilityRequest(RoomType.valueOf(type),
+        RoomType roomType = (type != null && !type.isBlank()) ? RoomType.valueOf(type) : null;
+        RoomAvailabilityRequest request = new RoomAvailabilityRequest(roomType,
                 checkInDate, checkOutDate, guests);
         List<RoomResponse> availableRooms = roomAvailabilityUseCase.findAvailableRooms(request);
         return ResponseEntity.ok(availableRooms);

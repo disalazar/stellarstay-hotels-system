@@ -9,10 +9,7 @@ import java.time.LocalDate;
 @Component
 public class AvailableRoomsRequestValidator {
     public void validate(String type, LocalDate checkInDate, LocalDate checkOutDate, int guests) {
-        if (type == null || type.isBlank()) {
-            throw new BadRequestException("Room type is required.");
-        }
-        if (RoomType.isInvalid(type)) {
+        if (type != null && RoomType.isInvalid(type)) {
             throw new BadRequestException(
                     "Invalid type value: '" + type + "'. Allowed values: "
                             + RoomType.validValues() + ".");
