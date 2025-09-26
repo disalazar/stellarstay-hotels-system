@@ -21,7 +21,7 @@ The full RFC is in [docs/RFC-001-Architecture.md](docs/RFC-001-Architecture.md)
 ```sh
 git clone <your-repo>
 cd stellarstay-hotels-system
-cp .env .env
+cp .env.dev .env.dev
 # For local development
 SPRING_PROFILES_ACTIVE=local docker-compose up --build
 # For production

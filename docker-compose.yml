@@ -84,8 +84,8 @@ networks:
     driver: bridge
 
 # Usage:
-# 1. Copy .env to .env and adjust values as needed.
+# 1. Copy .env.dev to .env.dev and adjust values as needed.
 # 2. Run: docker-compose up --build
 #
 # All configuration is managed via environment variables.
-# For local development, set DB_HOST=localhost in .env and run the app outside Docker.
+# For local development, set DB_HOST=localhost in .env.dev and run the app outside Docker.
