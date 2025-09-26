@@ -9,6 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -30,12 +31,16 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult()
                 .getAllErrors()
-                .forEach(
-                        (error) -> {
-                            String fieldName = ((FieldError) error).getField();
-                            String errorMessage = error.getDefaultMessage();
-                            errors.put(fieldName, errorMessage);
-                        });
+                .forEach(error -> {
+                    String fieldName;
+                    if (error instanceof FieldError) {
+                        fieldName = ((FieldError) error).getField();
+                    } else {
+                        fieldName = "Global";
+                    }
+                    String errorMessage = error.getDefaultMessage();
+                    errors.put(fieldName, errorMessage);
+                });
 
         String errorMessage =
                 errors.entrySet().stream()
@@ -165,6 +170,23 @@ public class GlobalExceptionHandler {
                 .error("Malformed JSON or type mismatch")
                 .message(message)
                 .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex) {
+        log.warn("Missing request parameter: {}", ex.getMessage());
+
+        String errorMessage = String.format("Required request parameter '%s' is missing", ex.getParameterName());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(errorMessage)
+                .build();
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

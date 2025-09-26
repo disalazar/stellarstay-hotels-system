@@ -11,6 +11,8 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/2-data.sql
     networks:
       - stellarstay_net
 

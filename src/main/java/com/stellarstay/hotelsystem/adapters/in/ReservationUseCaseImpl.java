@@ -3,6 +3,7 @@ package com.stellarstay.hotelsystem.adapters.in;
 import com.stellarstay.hotelsystem.api.dto.CreateReservationRequest;
 import com.stellarstay.hotelsystem.api.dto.ReservationMapper;
 import com.stellarstay.hotelsystem.api.dto.ReservationResponse;
+import com.stellarstay.hotelsystem.api.exception.BadRequestException;
 import com.stellarstay.hotelsystem.api.exception.RoomNotAvailableException;
 import com.stellarstay.hotelsystem.domain.*;
 import com.stellarstay.hotelsystem.ports.in.ReservationUseCase;
@@ -28,7 +29,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
     @Transactional
     public ReservationResponse createReservation(CreateReservationRequest request) {
         Room room = roomPersistencePort.findById(request.getRoomId())
-                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+                .orElseThrow(() -> new BadRequestException("Room with id '" + request.getRoomId() + "' not found"));
         List<Reservation> overlaps = reservationPersistencePort.findOverlappingReservations(room, request.getCheckInDate(), request.getCheckOutDate());
         if (!overlaps.isEmpty()) {
             throw new RoomNotAvailableException("Room not available for the selected dates");

@@ -6,11 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import com.stellarstay.hotelsystem.api.validation.ReservationDates;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ReservationDates
 public class CreateReservationRequest {
     @NotNull(message = "roomId is required.")
     private Long roomId;
