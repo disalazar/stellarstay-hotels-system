@@ -25,11 +25,15 @@ public class RoomAvailabilityUseCaseImpl implements RoomAvailabilityUseCase {
 
     @Override
     public List<RoomResponse> findAvailableRooms(RoomAvailabilityRequest request) {
-        List<Room> candidates = roomPersistencePort.findAvailableRooms(request.getType(), request.getGuests());
-        return candidates.stream()
-                .filter(room -> reservationPersistencePort.findOverlappingReservations(room, request.getCheckInDate(), request.getCheckOutDate()).isEmpty())
+        List<Room> availableRooms = roomPersistencePort.findAvailableRooms(
+            request.getType(),
+            request.getGuests(),
+            request.getCheckInDate(),
+            request.getCheckOutDate()
+        );
+        return availableRooms.stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private RoomResponse mapToResponse(Room room) {
@@ -41,4 +45,3 @@ public class RoomAvailabilityUseCaseImpl implements RoomAvailabilityUseCase {
         return resp;
     }
 }
-

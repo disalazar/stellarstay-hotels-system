@@ -16,3 +16,10 @@ CREATE TABLE IF NOT EXISTS reservations (
     total_price DOUBLE PRECISION NOT NULL
 );
 
+-- Composite index for quick searches by type, capacity, and availability
+CREATE INDEX IF NOT EXISTS idx_rooms_type_capacity_available
+    ON rooms (type, capacity, available);
+
+-- Composite index for efficient searches of overlapping reservations
+CREATE INDEX IF NOT EXISTS idx_reservations_room_dates
+    ON reservations (room_id, check_in_date, check_out_date);
