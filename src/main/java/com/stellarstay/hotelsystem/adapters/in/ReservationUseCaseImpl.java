@@ -4,6 +4,7 @@ import com.stellarstay.hotelsystem.api.dto.CreateReservationRequest;
 import com.stellarstay.hotelsystem.api.dto.ReservationMapper;
 import com.stellarstay.hotelsystem.api.dto.ReservationResponse;
 import com.stellarstay.hotelsystem.api.exception.BadRequestException;
+import com.stellarstay.hotelsystem.api.exception.KafkaPublishException;
 import com.stellarstay.hotelsystem.api.exception.RoomNotAvailableException;
 import com.stellarstay.hotelsystem.domain.*;
 import com.stellarstay.hotelsystem.ports.in.ReservationUseCase;
@@ -47,7 +48,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
         try {
             eventPublisher.publishReservationCreated(saved);
         } catch (Exception e) {
-            System.err.println("Error publishing reservation event: " + e.getMessage());
+            throw new KafkaPublishException("Error publishing reservation event", e);
         }
         return reservationMapper.toResponse(saved);
     }

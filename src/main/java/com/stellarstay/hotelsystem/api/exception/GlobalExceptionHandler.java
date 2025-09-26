@@ -189,4 +189,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
+
+    @ExceptionHandler(KafkaPublishException.class)
+    public ResponseEntity<ErrorResponse> handleKafkaPublishException(KafkaPublishException ex) {
+        log.error("Kafka publish error: {}", ex.getMessage(), ex);
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("Kafka Publish Error")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }
