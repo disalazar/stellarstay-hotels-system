@@ -24,6 +24,8 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     listener:
       missing-topics-fatal: false
+    topic:
+      reservations: ${KAFKA_TOPIC_RESERVATIONS}
 
 server:
   port: ${SERVER_PORT}

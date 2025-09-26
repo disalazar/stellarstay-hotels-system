@@ -29,5 +29,42 @@ public class Resilience4jConfig {
                 .build();
         return Retry.of("reservationEventRetry", config);
     }
-}
 
+    @Bean
+    public CircuitBreaker paymentCircuitBreaker() {
+        CircuitBreakerConfig config = CircuitBreakerConfig.custom()
+                .failureRateThreshold(50)
+                .waitDurationInOpenState(Duration.ofSeconds(10))
+                .slidingWindowSize(10)
+                .build();
+        return CircuitBreaker.of("paymentCircuitBreaker", config);
+    }
+
+    @Bean
+    public Retry paymentRetry() {
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(3)
+                .waitDuration(Duration.ofMillis(500))
+                .build();
+        return Retry.of("paymentRetry", config);
+    }
+
+    @Bean
+    public CircuitBreaker notificationCircuitBreaker() {
+        CircuitBreakerConfig config = CircuitBreakerConfig.custom()
+                .failureRateThreshold(50)
+                .waitDurationInOpenState(Duration.ofSeconds(10))
+                .slidingWindowSize(10)
+                .build();
+        return CircuitBreaker.of("notificationCircuitBreaker", config);
+    }
+
+    @Bean
+    public Retry notificationRetry() {
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(3)
+                .waitDuration(Duration.ofMillis(500))
+                .build();
+        return Retry.of("notificationRetry", config);
+    }
+}
