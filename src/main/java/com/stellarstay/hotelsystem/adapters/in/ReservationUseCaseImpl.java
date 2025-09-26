@@ -11,9 +11,10 @@ import com.stellarstay.hotelsystem.ports.in.ReservationUseCase;
 import com.stellarstay.hotelsystem.ports.out.ReservationEventPublisherPort;
 import com.stellarstay.hotelsystem.ports.out.ReservationPersistencePort;
 import com.stellarstay.hotelsystem.ports.out.RoomPersistencePort;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
     private final ReservationMapper reservationMapper;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public ReservationResponse createReservation(CreateReservationRequest request) {
         Room room = roomPersistencePort.findById(request.getRoomId())
                 .orElseThrow(() -> new BadRequestException("Room with id '" + request.getRoomId() + "' not found"));
