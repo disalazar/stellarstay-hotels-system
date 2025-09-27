@@ -11,6 +11,7 @@ import com.stellarstay.hotelsystem.ports.in.ReservationUseCase;
 import com.stellarstay.hotelsystem.ports.out.ReservationEventPublisherPort;
 import com.stellarstay.hotelsystem.ports.out.ReservationPersistencePort;
 import com.stellarstay.hotelsystem.ports.out.RoomPersistencePort;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Bulkhead(name = "reservationBulkhead", type = Bulkhead.Type.THREADPOOL)
     public ReservationResponse createReservation(CreateReservationRequest request) {
         Room room = roomPersistencePort.findById(request.getRoomId())
                 .orElseThrow(() -> {

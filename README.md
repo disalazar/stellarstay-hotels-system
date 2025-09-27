@@ -143,6 +143,20 @@ This approach is very effective for guaranteeing integrity in critical operation
 
 ---
 
+## Scalability and Bulkhead Pattern
+
+To ensure the system can handle high concurrency and remain stable under heavy load, the Bulkhead pattern has been applied to the reservation creation process:
+
+- The `createReservation` method in `ReservationUseCaseImpl` is annotated with `@Bulkhead` from the Resilience4j library.
+- Bulkhead configuration is defined in `application.yml`, setting strict limits on concurrent executions and queued requests for reservation creation.
+- This approach does not modify business logic or repository code, but transparently protects the system from overload in this critical section.
+- The API can now handle up to **50 concurrent reservation requests** and up to **200 additional requests in queue**. This is aligned with the business goal of supporting thousands of daily reservations and high-traffic peaks.
+- If the system is overloaded, new requests will wait in the queue or be rejected, but the rest of the API remains responsive and stable.
+
+This configuration helps protect the overall system stability and maintain high availability (99.9% uptime) during peak periods, as required by the business context.
+
+---
+
 ## Project Structure (Package Distribution)
 
 The following diagram shows the actual package and class distribution for the StellarStay Hotels System, reflecting both `adapters/in` and `adapters/out` as in your project:

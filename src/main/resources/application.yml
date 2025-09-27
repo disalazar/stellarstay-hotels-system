@@ -51,3 +51,10 @@ logging:
   level:
     org.hibernate.SQL: OFF
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
+resilience4j:
+  bulkhead:
+    instances:
+      reservationBulkhead:
+        maxThreadPoolSize: 50   # Allows up to 50 concurrent reservations
+        coreThreadPoolSize: 20 # Core of threads for basic concurrency
+        queueCapacity: 200     # Up to 200 requests on hold if the limit is exceeded
