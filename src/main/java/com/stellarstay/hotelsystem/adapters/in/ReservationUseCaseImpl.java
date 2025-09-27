@@ -12,6 +12,7 @@ import com.stellarstay.hotelsystem.ports.out.ReservationEventPublisherPort;
 import com.stellarstay.hotelsystem.ports.out.ReservationPersistencePort;
 import com.stellarstay.hotelsystem.ports.out.RoomPersistencePort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationUseCaseImpl implements ReservationUseCase {
     private final RoomPersistencePort roomPersistencePort;
     private final ReservationPersistencePort reservationPersistencePort;
@@ -31,9 +33,13 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public ReservationResponse createReservation(CreateReservationRequest request) {
         Room room = roomPersistencePort.findById(request.getRoomId())
-                .orElseThrow(() -> new BadRequestException("Room with id '" + request.getRoomId() + "' not found"));
+                .orElseThrow(() -> {
+                    log.error("[ReservationUseCaseImpl] Room with id={} not found", request.getRoomId());
+                    return new BadRequestException("Room with id '" + request.getRoomId() + "' not found");
+                });
         List<Reservation> overlaps = reservationPersistencePort.findOverlappingReservations(room, request.getCheckInDate(), request.getCheckOutDate());
         if (!overlaps.isEmpty()) {
+            log.error("[ReservationUseCaseImpl] Room id={} not available for dates {} to {}", request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
             throw new RoomNotAvailableException("Room not available for the selected dates");
         }
         double totalPrice = priceCalculator.calculate(room.getType(), request.getCheckInDate(), request.getCheckOutDate(), request.getGuests(), request.isBreakfastIncluded());
@@ -50,7 +56,8 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
         try {
             eventPublisher.publishReservationCreated(saved);
         } catch (Exception e) {
-            throw new KafkaPublishException("Error publishing reservation event", e);
+            log.error("[ReservationUseCaseImpl] Error publishing reservation event for reservationId={}: {}", saved.getId(), e.getMessage());
+            throw new KafkaPublishException("Failed to publish reservation event", e);
         }
         return reservationMapper.toResponse(saved);
     }

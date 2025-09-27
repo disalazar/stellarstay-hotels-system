@@ -33,8 +33,14 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody CreateReservationRequest request) {
+        log.info("[ReservationController] POST /api/reservations - Request received: roomId={}, guestName={}, " +
+                        "guests={}, checkInDate={}, checkOutDate={}, breakfastIncluded={}",
+                request.getRoomId(), request.getGuestName(), request.getGuests(), request.getCheckInDate(),
+                request.getCheckOutDate(), request.isBreakfastIncluded());
         ReservationResponse reservation = reservationUseCase.createReservation(request);
         reservationCreatedCounter.increment();
+        log.info("[ReservationController] POST /api/reservations - Reservation created with id={}",
+                reservation.getReservationId());
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 }

@@ -9,6 +9,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/rooms")
 @RequiredArgsConstructor
+@Slf4j
 public class RoomController {
     private final RoomAvailabilityUseCase roomAvailabilityUseCase;
     private final AvailableRoomsRequestValidator validator;
@@ -37,12 +39,15 @@ public class RoomController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate,
             @RequestParam int guests
     ) {
+        log.info("[RoomController] GET /api/rooms/available - Request received: type={}, " +
+                "checkInDate={}, checkOutDate={}, guests={}", type, checkInDate, checkOutDate, guests);
         availableRoomsQueriedCounter.increment();
         validator.validate(type, checkInDate, checkOutDate, guests);
         RoomType roomType = (type != null && !type.isBlank()) ? RoomType.valueOf(type) : null;
         RoomAvailabilityRequest request = new RoomAvailabilityRequest(roomType,
                 checkInDate, checkOutDate, guests);
         List<RoomResponse> availableRooms = roomAvailabilityUseCase.findAvailableRooms(request);
+        log.info("[RoomController] GET /api/rooms/available - Returning {} available rooms", availableRooms.size());
         return ResponseEntity.ok(availableRooms);
     }
 }
