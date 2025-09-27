@@ -57,3 +57,5 @@ resilience4j:
         maxThreadPoolSize: 50   # Allows up to 50 concurrent reservations
         coreThreadPoolSize: 20 # Core of threads for basic concurrency
         queueCapacity: 200     # Up to 200 requests on hold if the limit is exceeded
+        executorService:
+          beanName: reservationTaskExecutor

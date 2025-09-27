@@ -8,8 +8,10 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,13 +22,23 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/reservations")
-@RequiredArgsConstructor
 @Slf4j
 @Validated
 public class ReservationController {
     private final ReservationUseCase reservationUseCase;
     private final MeterRegistry meterRegistry;
+    private final ThreadPoolTaskExecutor reservationTaskExecutor;
     private Counter reservationCreatedCounter;
+
+    public ReservationController(
+        ReservationUseCase reservationUseCase,
+        MeterRegistry meterRegistry,
+        @Qualifier("reservationTaskExecutor") ThreadPoolTaskExecutor reservationTaskExecutor
+    ) {
+        this.reservationUseCase = reservationUseCase;
+        this.meterRegistry = meterRegistry;
+        this.reservationTaskExecutor = reservationTaskExecutor;
+    }
 
     @PostConstruct
     public void init() {
@@ -39,12 +51,14 @@ public class ReservationController {
                         "guests={}, checkInDate={}, checkOutDate={}, breakfastIncluded={}",
                 request.getRoomId(), request.getGuestName(), request.getGuests(), request.getCheckInDate(),
                 request.getCheckOutDate(), request.isBreakfastIncluded());
-        return reservationUseCase.createReservation(request)
-                .thenApply(reservation -> {
-                    reservationCreatedCounter.increment();
-                    log.info("[ReservationController] POST /api/reservations - Reservation created with id={}",
-                            reservation.getReservationId());
-                    return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
-                });
+        return CompletableFuture.supplyAsync(
+                () -> reservationUseCase.createReservation(request),
+                reservationTaskExecutor
+        ).thenApply(reservation -> {
+            reservationCreatedCounter.increment();
+            log.info("[ReservationController] POST /api/reservations - Reservation created with id={}",
+                    reservation.getReservationId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+        });
     }
 }

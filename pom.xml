@@ -124,6 +124,12 @@
             <artifactId>vavr</artifactId>
             <version>0.10.4</version>
         </dependency>
+        <!-- Micrometer Context Propagation para propagar el MDC (correlationId) entre hilos asíncronos -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>context-propagation</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -13,6 +13,7 @@ import com.stellarstay.hotelsystem.ports.out.ReservationPersistencePort;
 import com.stellarstay.hotelsystem.ports.out.RoomPersistencePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,12 +35,12 @@ public class ReservationTransactionalHelper {
         Room room = roomPersistencePort.findById(request.getRoomId())
                 .orElseThrow(() -> {
                     log.error("[ReservationTransactionalService] Room with id={} not found", request.getRoomId());
-                    return new BadRequestException("Room with id '" + request.getRoomId() + "' not found");
+                    return new BadRequestException("Room with id '" + request.getRoomId() + "' not found", MDC.get("correlationId"));
                 });
         List<Reservation> overlaps = reservationPersistencePort.findOverlappingReservationsWithLock(room, request.getCheckInDate(), request.getCheckOutDate());
         if (!overlaps.isEmpty()) {
             log.error("[ReservationTransactionalService] Room id={} not available for dates {} to {}", request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
-            throw new RoomNotAvailableException("Room not available for the selected dates");
+            throw new RoomNotAvailableException("Room not available for the selected dates", MDC.get("correlationId"));
         }
         double totalPrice = priceCalculator.calculate(room.getType(), request.getCheckInDate(), request.getCheckOutDate(), request.getGuests(), request.isBreakfastIncluded());
         Reservation reservation = Reservation.builder()
@@ -56,7 +57,7 @@ public class ReservationTransactionalHelper {
             eventPublisher.publishReservationCreated(saved);
         } catch (Exception e) {
             log.error("[ReservationTransactionalService] Failed to publish reservation event", e);
-            throw new KafkaPublishException("Failed to publish reservation event", e);
+            throw new KafkaPublishException("Failed to publish reservation event", e, MDC.get("correlationId"));
         }
         return reservationMapper.toResponse(saved);
     }

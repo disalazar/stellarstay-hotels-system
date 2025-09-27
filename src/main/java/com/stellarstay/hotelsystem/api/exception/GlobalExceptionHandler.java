@@ -1,8 +1,10 @@
 package com.stellarstay.hotelsystem.api.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -23,10 +25,21 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private String getCorrelationIdForLog(HttpServletRequest request) {
+        String correlationId = MDC.get("correlationId");
+        if (correlationId != null) return correlationId;
+        // Attempt to get the correlationId from header if MDC is empty:
+        if (request != null) {
+            String header = request.getHeader("X-Correlation-Id");
+            if (header != null && !header.isEmpty()) return header;
+        }
+        return "-";
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(
-            final MethodArgumentNotValidException ex) {
-        log.warn("Validation error: {}", ex.getMessage());
+            final MethodArgumentNotValidException ex, HttpServletRequest request) {
+        log.warn("correlationId={} - Validation error: {}", getCorrelationIdForLog(request), ex.getMessage());
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult()
@@ -60,8 +73,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(
-            final ConstraintViolationException ex) {
-        log.warn("Constraint violation: {}", ex.getMessage());
+            final ConstraintViolationException ex, HttpServletRequest request) {
+        log.warn("correlationId={} - Constraint violation: {}", getCorrelationIdForLog(request), ex.getMessage());
 
         String errorMessage =
                 ex.getConstraintViolations().stream()
@@ -81,9 +94,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
-            final MethodArgumentTypeMismatchException ex) {
+            final MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         log.warn(
-                "Type mismatch for parameter '{}': expected {}, got {}",
+                "correlationId={} - Type mismatch for parameter '{}': expected {}, got {}",
+                getCorrelationIdForLog(request),
                 ex.getName(),
                 ex.getRequiredType(),
                 ex.getValue());
@@ -106,8 +120,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(final Exception ex) {
-        log.error("Unexpected error occurred", ex);
+    public ResponseEntity<ErrorResponse> handleGenericException(final Exception ex, HttpServletRequest request) {
+        log.error("correlationId={} - Unexpected error occurred", getCorrelationIdForLog(request), ex);
 
         ErrorResponse errorResponse =
                 ErrorResponse.builder()
@@ -122,8 +136,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingRequestHeaderException.class)
     public ResponseEntity<ErrorResponse> handleMissingRequestHeaderException(
-            final MissingRequestHeaderException ex) {
-        log.error("Missing request header: {}", ex.getMessage());
+            final MissingRequestHeaderException ex, HttpServletRequest request) {
+        log.error("correlationId={} - Missing request header: {}", getCorrelationIdForLog(request), ex.getMessage());
 
         ErrorResponse errorResponse =
                 ErrorResponse.builder()
@@ -137,8 +151,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(final BadRequestException ex) {
+    public ResponseEntity<ErrorResponse> handleBadRequestException(final BadRequestException ex, HttpServletRequest request) {
+        String correlationId = ex.getCorrelationId();
+        if (correlationId == null || correlationId.isEmpty()) {
+            correlationId = getCorrelationIdForLog(request);
+        }
+        MDC.put("correlationId", correlationId);
         log.warn("Bad request: {}", ex.getMessage());
+        MDC.remove("correlationId");
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -149,8 +169,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RoomNotAvailableException.class)
-    public ResponseEntity<ErrorResponse> handleRoomNotAvailable(RoomNotAvailableException ex) {
+    public ResponseEntity<ErrorResponse> handleRoomNotAvailable(RoomNotAvailableException ex, HttpServletRequest request) {
+        String correlationId = ex.getCorrelationId();
+        if (correlationId == null || correlationId.isEmpty()) {
+            correlationId = getCorrelationIdForLog(request);
+        }
+        MDC.put("correlationId", correlationId);
         log.warn("Room not available: {}", ex.getMessage());
+        MDC.remove("correlationId");
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
@@ -191,8 +217,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(KafkaPublishException.class)
-    public ResponseEntity<ErrorResponse> handleKafkaPublishException(KafkaPublishException ex) {
+    public ResponseEntity<ErrorResponse> handleKafkaPublishException(KafkaPublishException ex, HttpServletRequest request) {
+        String correlationId = ex.getCorrelationId();
+        if (correlationId == null || correlationId.isEmpty()) {
+            correlationId = getCorrelationIdForLog(request);
+        }
+        MDC.put("correlationId", correlationId);
         log.error("Kafka publish error: {}", ex.getMessage(), ex);
+        MDC.remove("correlationId");
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
