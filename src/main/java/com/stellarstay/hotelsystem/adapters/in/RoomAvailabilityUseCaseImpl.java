@@ -37,11 +37,11 @@ public class RoomAvailabilityUseCaseImpl implements RoomAvailabilityUseCase {
     }
 
     private RoomResponse mapToResponse(Room room) {
-        RoomResponse resp = new RoomResponse();
-        resp.setRoomId(room.getId());
-        resp.setType(room.getType().name());
-        resp.setCapacity(room.getCapacity());
-        resp.setAvailable(room.isAvailable());
-        return resp;
+        return RoomResponse.builder()
+            .roomId(room.getId())
+            .type(room.getType().name())
+            .capacity(room.getCapacity())
+            .available(room.isAvailable())
+            .build();
     }
 }

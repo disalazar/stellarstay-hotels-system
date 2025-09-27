@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Builder;
 
 @Entity
 @Table(name = "reservations")
@@ -15,6 +16,7 @@ import lombok.EqualsAndHashCode;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

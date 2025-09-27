@@ -37,14 +37,15 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
             throw new RoomNotAvailableException("Room not available for the selected dates");
         }
         double totalPrice = priceCalculator.calculate(room.getType(), request.getCheckInDate(), request.getCheckOutDate(), request.getGuests(), request.isBreakfastIncluded());
-        Reservation reservation = new Reservation();
-        reservation.setRoom(room);
-        reservation.setGuestName(request.getGuestName());
-        reservation.setGuests(request.getGuests());
-        reservation.setCheckInDate(request.getCheckInDate());
-        reservation.setCheckOutDate(request.getCheckOutDate());
-        reservation.setBreakfastIncluded(request.isBreakfastIncluded());
-        reservation.setTotalPrice(totalPrice);
+        Reservation reservation = Reservation.builder()
+            .room(room)
+            .guestName(request.getGuestName())
+            .guests(request.getGuests())
+            .checkInDate(request.getCheckInDate())
+            .checkOutDate(request.getCheckOutDate())
+            .breakfastIncluded(request.isBreakfastIncluded())
+            .totalPrice(totalPrice)
+            .build();
         Reservation saved = reservationPersistencePort.save(reservation);
         try {
             eventPublisher.publishReservationCreated(saved);
