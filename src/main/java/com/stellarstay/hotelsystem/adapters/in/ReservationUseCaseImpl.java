@@ -3,9 +3,6 @@ package com.stellarstay.hotelsystem.adapters.in;
 import com.stellarstay.hotelsystem.api.dto.CreateReservationRequest;
 import com.stellarstay.hotelsystem.api.dto.ReservationMapper;
 import com.stellarstay.hotelsystem.api.dto.ReservationResponse;
-import com.stellarstay.hotelsystem.api.exception.BadRequestException;
-import com.stellarstay.hotelsystem.api.exception.KafkaPublishException;
-import com.stellarstay.hotelsystem.api.exception.RoomNotAvailableException;
 import com.stellarstay.hotelsystem.domain.*;
 import com.stellarstay.hotelsystem.ports.in.ReservationUseCase;
 import com.stellarstay.hotelsystem.ports.out.ReservationEventPublisherPort;
@@ -16,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service

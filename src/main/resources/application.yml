@@ -46,8 +46,6 @@ management:
         enabled: true
 
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - correlationId=%X{correlationId} - %msg%n"
   level:
     org.hibernate.SQL: OFF
     org.hibernate.type.descriptor.sql.BasicBinder: OFF
