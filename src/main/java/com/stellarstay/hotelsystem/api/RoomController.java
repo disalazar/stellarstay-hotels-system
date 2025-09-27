@@ -41,12 +41,12 @@ public class RoomController {
     ) {
         log.info("[RoomController] GET /api/rooms/available - Request received: type={}, " +
                 "checkInDate={}, checkOutDate={}, guests={}", type, checkInDate, checkOutDate, guests);
-        availableRoomsQueriedCounter.increment();
         validator.validate(type, checkInDate, checkOutDate, guests);
         RoomType roomType = (type != null && !type.isBlank()) ? RoomType.valueOf(type) : null;
         RoomAvailabilityRequest request = new RoomAvailabilityRequest(roomType,
                 checkInDate, checkOutDate, guests);
         List<RoomResponse> availableRooms = roomAvailabilityUseCase.findAvailableRooms(request);
+        availableRoomsQueriedCounter.increment();
         log.info("[RoomController] GET /api/rooms/available - Returning {} available rooms", availableRooms.size());
         return ResponseEntity.ok(availableRooms);
     }
