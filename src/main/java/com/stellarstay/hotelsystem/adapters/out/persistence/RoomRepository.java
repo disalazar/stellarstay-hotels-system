@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long>, RoomPersistencePort {
@@ -32,7 +31,4 @@ public interface RoomRepository extends JpaRepository<Room, Long>, RoomPersisten
         @Param("checkIn") java.time.LocalDate checkIn,
         @Param("checkOut") java.time.LocalDate checkOut
     );
-
-    @Override
-    Optional<Room> findById(Long id);
 }

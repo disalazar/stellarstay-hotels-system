@@ -30,14 +30,15 @@ public class ReservationUseCaseImpl implements ReservationUseCase {
     private final ReservationMapper reservationMapper;
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ReservationResponse createReservation(CreateReservationRequest request) {
         Room room = roomPersistencePort.findById(request.getRoomId())
                 .orElseThrow(() -> {
                     log.error("[ReservationUseCaseImpl] Room with id={} not found", request.getRoomId());
                     return new BadRequestException("Room with id '" + request.getRoomId() + "' not found");
                 });
-        List<Reservation> overlaps = reservationPersistencePort.findOverlappingReservations(room, request.getCheckInDate(), request.getCheckOutDate());
+        // Use explicit lock to search overlapping:
+        List<Reservation> overlaps = reservationPersistencePort.findOverlappingReservationsWithLock(room, request.getCheckInDate(), request.getCheckOutDate());
         if (!overlaps.isEmpty()) {
             log.error("[ReservationUseCaseImpl] Room id={} not available for dates {} to {}", request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
             throw new RoomNotAvailableException("Room not available for the selected dates");

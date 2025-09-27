@@ -130,6 +130,19 @@ docker compose -f docker-compose.yml --env-file .env.prod up -d
 
 ---
 
+## Data Integrity and Concurrency Control
+
+To guarantee data integrity and avoid race conditions in the reservation process, the following strategy is applied:
+
+- The `@Transactional(isolation = Isolation.READ_COMMITTED)` annotation ensures that each reservation operation only sees committed data, reducing unnecessary locking and improving performance compared to stricter isolation levels.
+- The query for overlapping reservations uses a pessimistic lock (`@Lock(LockModeType.PESSIMISTIC_WRITE)`), which locks the relevant reservation rows for the selected room and date range during the transaction.
+- This means that if two users try to reserve the same room for overlapping dates at the same time, only one transaction will proceed; the other will wait and, upon retrying, will see that the room is no longer available.
+- The lock is held on the reservation records until the transaction completes (commit or rollback), ensuring that no overbooking or double booking can occur.
+
+This approach is very effective for guaranteeing integrity in critical operations such as hotel reservations, inventory management, or financial transfers, where concurrent modifications must be strictly controlled.
+
+---
+
 ## Project Structure (Package Distribution)
 
 The following diagram shows the actual package and class distribution for the StellarStay Hotels System, reflecting both `adapters/in` and `adapters/out` as in your project:
