@@ -241,6 +241,27 @@ This structure follows the hexagonal architecture, clearly separating domain log
 - **Reliability Patterns:**
   - **Retry and Circuit Breaker:** All communication with external services (e.g., Kafka, payment gateways) uses retry and circuit breaker patterns to ensure resilience and fault tolerance. This prevents cascading failures and improves system stability under transient errors or outages.
 
+## Observability and Log Traceability with Correlation ID
+
+To ensure end-to-end traceability for every request, the system implements a custom HTTP filter (`CorrelationIdFilter`) that intercepts all incoming requests. This filter:
+
+- Looks for the `X-Correlation-Id` header in the HTTP request. If not present, it generates a new unique identifier (UUID).
+- Inserts the Correlation ID into the log context using `MDC` (Mapped Diagnostic Context) from the SLF4J library.
+- The Correlation ID is then automatically included in all logs generated during the lifecycle of the request, allowing you to trace the request across all services and components.
+
+**Libraries used:**
+- [SLF4J](https://www.slf4j.org/) for structured logging and MDC context management.
+- Spring Boot for filter integration and request lifecycle management.
+- [Micrometer](https://micrometer.io/) for metrics instrumentation and integration with monitoring systems (e.g., Prometheus, Grafana).
+
+**Benefits:**
+- Enables correlation of logs from different services and components for the same request.
+- Facilitates debugging and monitoring in distributed environments.
+- Compatible with observability tools such as ELK, Grafana Loki, Prometheus, etc.
+
+**Implementation:**
+The filter is located at `src/main/java/com/stellarstay/hotelsystem/config/CorrelationIdFilter.java` and is automatically registered as a Spring component. No additional configuration is required from the user.
+
 ---
 
 ## Troubleshooting
