@@ -14,4 +14,4 @@ RUN ./mvnw package -DskipTests
 EXPOSE 8080
 
 ENV JAVA_OPTS=""
-CMD ["sh", "-c", "java $JAVA_OPTS -jar target/*.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -jar target/hotelsystem-0.0.1-SNAPSHOT.jar"]

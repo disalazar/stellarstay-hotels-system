@@ -75,8 +75,6 @@ services:
       - prometheus
     networks:
       - stellarstay_net
-    volumes:
-      - ./target:/app/target
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
