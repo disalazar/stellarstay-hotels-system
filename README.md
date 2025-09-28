@@ -318,5 +318,6 @@ While Prometheus is already integrated for metrics collection, adding Grafana is
 - Implement CI/CD pipelines for automated build, test, and deployment.
 - Consider security best practices: API authentication, authorization, and secrets management.
 - Document error codes and business rules in the API documentation.
+- For performance and concurrency validation, consider implementing stress and load tests using tools like Apache JMeter. This will help ensure the system can handle high traffic and concurrent requests as required by business goals.
 
 By following these next steps, the StellarStay Hotels System will further improve its reliability, maintainability, and developer experience, while enabling robust integrations with external systems.
