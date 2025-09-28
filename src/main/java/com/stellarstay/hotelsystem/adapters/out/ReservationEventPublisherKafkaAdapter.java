@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class ReservationEventPublisherKafkaAdapter implements ReservationEventPublisherPort {
     private final KafkaTemplate<String, ReservationCreatedEvent> kafkaTemplate;
     private final ReservationMapper reservationMapper;
-    @Value("${kafka.topic.reservations}")
+    @Value("${spring.kafka.topic.reservations}")
     private String topic;
     private final CircuitBreaker reservationEventCircuitBreaker;
     private final Retry reservationEventRetry;

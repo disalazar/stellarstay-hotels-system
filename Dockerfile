@@ -1,5 +1,4 @@
-# Dockerfile for StellarStay Hotels System
-FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jdk
 
 WORKDIR /app
 
