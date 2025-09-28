@@ -27,35 +27,54 @@ The complete architecture document is available at [docs/RFC-001-Architecture.md
 
 ```bash
 # Clone the repository
-$ git clone <your-repo>
+$ git clone https://github.com/disalazar/stellarstay-hotels-system.git
 $ cd stellarstay-hotels-system
-
-# Build the project
-$ ./mvnw clean install
-
-# Run tests
-$ ./mvnw test
 ```
 
----
+## Setup and Installation
 
-## How to Run the API
+After cloning the repository, there are two ways to run the system:
 
-### Local development
-You can start the API for development using:
+### Development Mode
 
-```bash
-docker compose -f docker-compose.dev.yml --env-file .env.dev up -d
-```
+This mode starts only the required services (database, Kafka, etc.) while the application must be run manually, ideal for development:
 
-### Production
-To start the API for production, use:
+1. Copy the example configuration file:
+   ```bash
+   cp .env.example .env.dev
+   ```
 
-```bash
-docker compose -f docker-compose.yml --env-file .env.prod up -d
-```
+2. Edit the `.env.dev` file with the appropriate values for your development environment. The file contains examples and comments to guide you.
 
-> **Note:** A `.env.example` file is provided as a template. For security reasons, both `.env.dev` and `.env.prod` files must be requested from the API administrator (actually the developer) and are not included in the repository.
+3. Start the required services:
+   ```bash
+   docker compose -f docker-compose.dev.yml --env-file .env.dev up -d
+   ```
+
+4. The application must be run manually using an IDE like IntelliJ IDEA or from the command line:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+### Production Mode
+
+This mode starts both the application and all the required services, ready for a production environment:
+
+1. Copy the example configuration file:
+   ```bash
+   cp .env.example .env.prod
+   ```
+
+2. Edit the `.env.prod` file with the appropriate values for your production environment.
+
+3. Build and start all services including the application:
+   ```bash
+   docker compose -f docker-compose.yml --env-file .env.prod up -d
+   ```
+
+4. The application will be available at http://localhost:8080 (or the port you have configured).
+
+> **Note:** The `.env.dev` and `.env.prod` files contain sensitive variables and should not be included in version control.
 
 ---
 
